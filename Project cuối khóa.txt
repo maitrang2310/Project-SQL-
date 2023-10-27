@@ -1,0 +1,196 @@
+## (1)- (2 điểm) Tạo cơ sở dữ liệu theo các yêu cầu sau:
+# a.- Tạo cơ sở dữ liệu Cung cấp hàng hóa. 
+# b.- (1.0 điểm) Tạo các table từ các file CSV do GV cung cấp. Do các file CSV này không có tên field nên học viên cần viết lệnh để đổi tên cho các field như sau:
+-- (i)- Table States
+ALTER TABLE `maitrang-2310.CCHH.States` 
+RENAME COLUMN string_field_0 to StateCode
+ALTER TABLE `maitrang-2310.CCHH.States` 
+RENAME COLUMN string_field_1 to StateName
+-- (ii)- Table Categories
+ALTER TABLE `maitrang-2310.CCHH.Categories` 
+RENAME COLUMN string_field_0 to Code
+ALTER TABLE `maitrang-2310.CCHH.Categories` 
+RENAME COLUMN string_field_1 to Category
+-- (iii)- Table Countries
+ALTER TABLE `maitrang-2310.CCHH.Countries` 
+RENAME COLUMN string_field_0 to Country
+ALTER TABLE `maitrang-2310.CCHH.Countries` 
+RENAME COLUMN string_field_1 to Name
+-- (iv)- Table Sub_Categories
+ALTER TABLE `maitrang-2310.CCHH.Sub_Categories` 
+RENAME COLUMN int64_field_0 to Sub_CategoryCode
+ALTER TABLE `maitrang-2310.CCHH.Sub_Categories` 
+RENAME COLUMN string_field_1 to Sub_Category
+ALTER TABLE `maitrang-2310.CCHH.Sub_Categories` 
+RENAME COLUMN string_field_2 to CategoryCode
+-- (v)- Table Product
+ALTER TABLE `maitrang-2310.CCHH.Products` 
+RENAME COLUMN int64_field_0 to Sub_CategoryCode
+ALTER TABLE `maitrang-2310.CCHH.Products` 
+RENAME COLUMN string_field_1 to ProductName
+-- (vi)- Table Data
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN int64_field_0 to Customer_Age
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN string_field_1 to Customer_Gender
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN string_field_2 to State
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN string_field_3 to Product
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN int64_field_4 to Order_Quantity
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN int64_field_5 to Unit_Cost
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN int64_field_6 to Cost
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN int64_field_7 to Profit
+ALTER TABLE `maitrang-2310.CCHH.Data` 
+RENAME COLUMN int64_field_8 to Revenue
+# c.- (1.0 điểm) Viết lệnh tạo table cùng các ràng buộc khóa chính (primary key), khóa ngoại (forfeign key). 
+-- Xác định primary key: Unique và Not null, đặc trưng của table đó
+ALTER TABLE `maitrang-2310.CCHH.Categories`
+ADD PRIMARY KEY (Code) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.Countries`
+ADD PRIMARY KEY (Country) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.Products`
+ADD PRIMARY KEY (ProductName) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.States`
+ADD PRIMARY KEY (StateName) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.Sub_Categories`
+ADD PRIMARY KEY (Sub_CategoryCode) NOT ENFORCED;
+
+
+-- Xác định foreign key: Cái nối với primary key qua table khác
+ALTER TABLE `maitrang-2310.CCHH.Data`
+ADD FOREIGN KEY (State) REFERENCES `maitrang-2310.CCHH.States` (StateName) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.Data`
+ADD FOREIGN KEY (Product) REFERENCES `maitrang-2310.CCHH.Products` (ProductName) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.Products`
+ADD FOREIGN KEY (Sub_CategoryCode) REFERENCES `maitrang-2310.CCHH.Sub_Categories` (Sub_CategoryCode) NOT ENFORCED;
+
+ALTER TABLE `maitrang-2310.CCHH.Sub_Categories`
+ADD FOREIGN KEY (CategoryCode) REFERENCES `maitrang-2310.CCHH.Categories` (Code) NOT ENFORCED;
+
+##(2)- (8 điểm) Viết các lệnh truy vấn sau:
+#1.- (1 điểm) Tên những quốc gia mà khách hàng không mua sản phẩm 'Racing Socks, L'.
+WITH CTE AS 
+(
+  SELECT DISTINCT C.Name AS CountryName, B.StateName, A.Product
+  FROM `maitrang-2310.CCHH.Data` A
+  JOIN `maitrang-2310.CCHH.States` B ON State = B.StateName
+  JOIN `maitrang-2310.CCHH.Countries` C ON B.StateCode = C.Country
+)
+
+SELECT DISTINCT CountryName
+FROM CTE
+WHERE CountryName NOT IN (
+  SELECT CountryName
+  FROM CTE
+  WHERE Product = 'Racing Socks, L'
+)
+
+#2.  (1 điểm) Cho biết khách thuộc tiểu bang/tỉnh/thành phố nào? Lứa tuổi nào? Giới tính nào? Là đông (nhiều) nhất. 
+SELECT State, Customer_Age, Customer_Gender, COUNT (*) AS numbercustomer
+FROM `maitrang-2310.CCHH.Data`
+GROUP BY 1, 2, 3
+ORDER BY 4 DESC
+LIMIT 1
+
+#3. (1 điểm) Viết truy vấn để có kết quả như minh họa sau: Trung bình Profit từng quốc gia, khu vực, max profit của country, min profit của trung bình. 
+WITH CTE AS 
+(
+  SELECT C.Name, B.StateName, AVG(A.Profit) AS Average_Profit
+  FROM `maitrang-2310.CCHH.Data` A
+  JOIN `maitrang-2310.CCHH.States` B ON A.State = B.StateName
+  JOIN `maitrang-2310.CCHH.Countries` C ON B.StateCode = C.Country
+  GROUP BY 1,2
+)
+SELECT CTE.Name,CTE.StateName, CTE.Average_Profit, 
+Max(CTE.Average_Profit) OVER (PARTITION BY CTE.Name) AS MaxProfitCountry, 
+Min(CTE.Average_Profit) OVER (PARTITION BY CTE.Name) AS MinProfitCountry
+FROM CTE
+GROUP BY 1,2,3
+ORDER BY 1 ASC;
+
+# 4.- (1 điểm) Viết truy vấn sau sao cho tối ưu hóa, với yêu cầu: cho biết tên sản phẩm mà khách hàng nữ người Mỹ (Name= ‘US’) ở lứa tuổi từ 40 đến 50 đã mua sản phẩm thuộc loại ‘Clothing’ (Category=‘Clothing’) và đem lại lợi nhuận (Profit) trên 100.
+WITH CTE AS
+(
+  SELECT A.Product, C.Country, A.Customer_Gender,A.Customer_Age, A.Profit, F.Category
+  FROM `maitrang-2310.CCHH.Data` A
+  JOIN `maitrang-2310.CCHH.States` B ON A.State = B.StateName
+  JOIN `maitrang-2310.CCHH.Countries` C ON B.StateCode = C.Country
+  JOIN `maitrang-2310.CCHH.Products` D ON A.Product = D.ProductName 
+  JOIN `maitrang-2310.CCHH.Sub_Categories` E ON D.Sub_CategoryCode = E.Sub_CategoryCode
+  JOIN `maitrang-2310.CCHH.Categories` F ON F.Code = E.CategoryCode
+)
+
+SELECT CTE.Product
+FROM CTE
+WHERE CTE.Country = 'US'and CTE.Customer_Gender = 'F' and CTE.Customer_Age BETWEEN 40 and 50 and CTE.Profit > 100 AND CTE.Category = 'Clothing'
+GROUP BY 1
+
+#5 (1 điểm) Giả sử người ta phân tuổi của khách hàng thành 3 nhóm: dưới 25, từ 25 đến 50 và trên 50. Yêu cầu thống kê số lượng khách của từng quốc gia theo lứa tuổi theo minh họa sau:
+WITH CTE AS
+(
+SELECT C.Name, A.Customer_Age
+FROM `maitrang-2310.CCHH.Data` A
+JOIN `maitrang-2310.CCHH.States` B ON A.State = B.StateName
+JOIN `maitrang-2310.CCHH.Countries` C ON B.StateCode = C.Country
+)
+SElECT CTE.Name, 
+        SUM(CASE WHEN CTE.Customer_Age < 25 THEN 1 ELSE 0 END) AS Under25,
+        SUM(CASE WHEN CTE.Customer_Age BETWEEN 25 AND 50 THEN 1 ELSE 0 END) AS Between25And50,
+        SUM(CASE WHEN CTE.Customer_Age > 50 THEN 1 ELSE 0 END) AS Over50
+FROM CTE
+GROUP BY 1
+
+#6.- (1 điểm) Tương tự như trên, giả sử người ta phân tuổi của khách hàng thành 3 nhóm: dưới 25, từ 25 đến 50 và trên 50.Sử dụng mệnh đề FROM với PIVOT để tạo thống kê sau. Biết rằng thống kê này chỉ tính riêng cho các State thuộc thuộc nước Úc (Name='Australia')
+WITH CTE AS
+(
+SELECT C.Name, B.StateName, A.Customer_Age
+FROM `maitrang-2310.CCHH.Data` A
+JOIN `maitrang-2310.CCHH.States` B ON A.State = B.StateName
+JOIN `maitrang-2310.CCHH.Countries` C ON B.StateCode = C.Country
+)
+SElECT CTE.StateName, 
+        SUM(CASE WHEN CTE.Customer_Age < 25 THEN 1 ELSE 0 END) AS Under25,
+        SUM(CASE WHEN CTE.Customer_Age BETWEEN 25 AND 50 THEN 1 ELSE 0 END) AS Between25And50,
+        SUM(CASE WHEN CTE.Customer_Age > 50 THEN 1 ELSE 0 END) AS Over50
+FROM CTE
+WHERE CTE.Name = 'Australia'
+GROUP BY CTE.StateName
+
+#7. Tạo kết quả theo mẫu sau:
+WITH CTE AS
+(
+  SELECT C.Name, B.StateName, A.Product, A.Revenue
+  FROM `maitrang-2310.CCHH.Data` A
+  JOIN `maitrang-2310.CCHH.States` B ON A.State = B.StateName
+  JOIN `maitrang-2310.CCHH.Countries`C ON C.Country = B.StateCode
+)
+SELECT CTE.Name, CTE.StateName, CTE.Product, SUM(CTE.Revenue) AS Sum_Revenue
+FROM CTE
+GROUP BY ROLLUP(CTE.Name, CTE.StateName, CTE.Product)
+
+#8.- (1 điểm) cho biết tên nước mà khách hàng nam với tuổi nhỏ hơn 24 đã đặt mua sản phẩm thuộc loại 'Accessories' (Category='Accessories') và đem lại lợi nhuận trên 1000.
+WITH CTE AS
+(
+  SELECT C.Name, A.Customer_Gender, A.Customer_Age, F.Category, A.Profit
+  FROM `maitrang-2310.CCHH.Data` A
+  JOIN `maitrang-2310.CCHH.States` B ON A.State = B.StateName
+  JOIN `maitrang-2310.CCHH.Countries`C ON C.Country = B.StateCode
+  JOIN `maitrang-2310.CCHH.Products` D ON A.Product = D.ProductName
+  JOIN `maitrang-2310.CCHH.Sub_Categories` E ON D.Sub_CategoryCode = E.Sub_CategoryCode
+  JOIN `maitrang-2310.CCHH.Categories` F ON E.CategoryCode = F.Code
+)
+SELECT CTE.Name
+FROM CTE
+WHERE CTE.Customer_Gender = 'M' AND CTE.Customer_Age < 24 AND CTE.Category = 'Accessories' AND CTE.Profit > 1000
+GROUP BY 1
