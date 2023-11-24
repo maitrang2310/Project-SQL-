@@ -1,6 +1,6 @@
-## (1)- (2 điểm) Tạo cơ sở dữ liệu theo các yêu cầu sau:
+## (1)- Tạo cơ sở dữ liệu theo các yêu cầu sau:
 # a.- Tạo cơ sở dữ liệu Cung cấp hàng hóa. 
-# b.- (1.0 điểm) Tạo các table từ các file CSV do GV cung cấp. Do các file CSV này không có tên field nên học viên cần viết lệnh để đổi tên cho các field như sau:
+# b.- Tạo các table từ các file CSV do GV cung cấp. Do các file CSV này không có tên field nên học viên cần viết lệnh để đổi tên cho các field như sau:
 -- (i)- Table States
 ALTER TABLE `maitrang-2310.CCHH.States` 
 RENAME COLUMN string_field_0 to StateCode
@@ -47,7 +47,7 @@ ALTER TABLE `maitrang-2310.CCHH.Data`
 RENAME COLUMN int64_field_7 to Profit
 ALTER TABLE `maitrang-2310.CCHH.Data` 
 RENAME COLUMN int64_field_8 to Revenue
-# c.- (1.0 điểm) Viết lệnh tạo table cùng các ràng buộc khóa chính (primary key), khóa ngoại (forfeign key). 
+# c.- Viết lệnh tạo table cùng các ràng buộc khóa chính (primary key), khóa ngoại (forfeign key). 
 -- Xác định primary key: Unique và Not null, đặc trưng của table đó
 ALTER TABLE `maitrang-2310.CCHH.Categories`
 ADD PRIMARY KEY (Code) NOT ENFORCED;
@@ -78,8 +78,8 @@ ADD FOREIGN KEY (Sub_CategoryCode) REFERENCES `maitrang-2310.CCHH.Sub_Categories
 ALTER TABLE `maitrang-2310.CCHH.Sub_Categories`
 ADD FOREIGN KEY (CategoryCode) REFERENCES `maitrang-2310.CCHH.Categories` (Code) NOT ENFORCED;
 
-##(2)- (8 điểm) Viết các lệnh truy vấn sau:
-#1.- (1 điểm) Tên những quốc gia mà khách hàng không mua sản phẩm 'Racing Socks, L'.
+##(2)- Viết các lệnh truy vấn sau:
+#1.- Tên những quốc gia mà khách hàng không mua sản phẩm 'Racing Socks, L'.
 WITH CTE AS 
 (
   SELECT DISTINCT C.Name AS CountryName, B.StateName, A.Product
@@ -96,14 +96,14 @@ WHERE CountryName NOT IN (
   WHERE Product = 'Racing Socks, L'
 )
 
-#2.  (1 điểm) Cho biết khách thuộc tiểu bang/tỉnh/thành phố nào? Lứa tuổi nào? Giới tính nào? Là đông (nhiều) nhất. 
+#2. Cho biết khách thuộc tiểu bang/tỉnh/thành phố nào? Lứa tuổi nào? Giới tính nào? Là đông (nhiều) nhất. 
 SELECT State, Customer_Age, Customer_Gender, COUNT (*) AS numbercustomer
 FROM `maitrang-2310.CCHH.Data`
 GROUP BY 1, 2, 3
 ORDER BY 4 DESC
 LIMIT 1
 
-#3. (1 điểm) Viết truy vấn để có kết quả như minh họa sau: Trung bình Profit từng quốc gia, khu vực, max profit của country, min profit của trung bình. 
+#3. Viết truy vấn để có kết quả như minh họa sau: Trung bình Profit từng quốc gia, khu vực, max profit của country, min profit của trung bình. 
 WITH CTE AS 
 (
   SELECT C.Name, B.StateName, AVG(A.Profit) AS Average_Profit
@@ -119,7 +119,7 @@ FROM CTE
 GROUP BY 1,2,3
 ORDER BY 1 ASC;
 
-# 4.- (1 điểm) Viết truy vấn sau sao cho tối ưu hóa, với yêu cầu: cho biết tên sản phẩm mà khách hàng nữ người Mỹ (Name= ‘US’) ở lứa tuổi từ 40 đến 50 đã mua sản phẩm thuộc loại ‘Clothing’ (Category=‘Clothing’) và đem lại lợi nhuận (Profit) trên 100.
+# 4.- Viết truy vấn sau sao cho tối ưu hóa, với yêu cầu: cho biết tên sản phẩm mà khách hàng nữ người Mỹ (Name= ‘US’) ở lứa tuổi từ 40 đến 50 đã mua sản phẩm thuộc loại ‘Clothing’ (Category=‘Clothing’) và đem lại lợi nhuận (Profit) trên 100.
 WITH CTE AS
 (
   SELECT A.Product, C.Country, A.Customer_Gender,A.Customer_Age, A.Profit, F.Category
@@ -136,7 +136,7 @@ FROM CTE
 WHERE CTE.Country = 'US'and CTE.Customer_Gender = 'F' and CTE.Customer_Age BETWEEN 40 and 50 and CTE.Profit > 100 AND CTE.Category = 'Clothing'
 GROUP BY 1
 
-#5 (1 điểm) Giả sử người ta phân tuổi của khách hàng thành 3 nhóm: dưới 25, từ 25 đến 50 và trên 50. Yêu cầu thống kê số lượng khách của từng quốc gia theo lứa tuổi theo minh họa sau:
+#5 Giả sử người ta phân tuổi của khách hàng thành 3 nhóm: dưới 25, từ 25 đến 50 và trên 50. Yêu cầu thống kê số lượng khách của từng quốc gia theo lứa tuổi theo minh họa sau:
 WITH CTE AS
 (
 SELECT C.Name, A.Customer_Age
@@ -151,7 +151,7 @@ SElECT CTE.Name,
 FROM CTE
 GROUP BY 1
 
-#6.- (1 điểm) Tương tự như trên, giả sử người ta phân tuổi của khách hàng thành 3 nhóm: dưới 25, từ 25 đến 50 và trên 50.Sử dụng mệnh đề FROM với PIVOT để tạo thống kê sau. Biết rằng thống kê này chỉ tính riêng cho các State thuộc thuộc nước Úc (Name='Australia')
+#6.- Tương tự như trên, giả sử người ta phân tuổi của khách hàng thành 3 nhóm: dưới 25, từ 25 đến 50 và trên 50.Sử dụng mệnh đề FROM với PIVOT để tạo thống kê sau. Biết rằng thống kê này chỉ tính riêng cho các State thuộc thuộc nước Úc (Name='Australia')
 WITH CTE AS
 (
 SELECT C.Name, B.StateName, A.Customer_Age
@@ -179,7 +179,7 @@ SELECT CTE.Name, CTE.StateName, CTE.Product, SUM(CTE.Revenue) AS Sum_Revenue
 FROM CTE
 GROUP BY ROLLUP(CTE.Name, CTE.StateName, CTE.Product)
 
-#8.- (1 điểm) cho biết tên nước mà khách hàng nam với tuổi nhỏ hơn 24 đã đặt mua sản phẩm thuộc loại 'Accessories' (Category='Accessories') và đem lại lợi nhuận trên 1000.
+#8.- cho biết tên nước mà khách hàng nam với tuổi nhỏ hơn 24 đã đặt mua sản phẩm thuộc loại 'Accessories' (Category='Accessories') và đem lại lợi nhuận trên 1000.
 WITH CTE AS
 (
   SELECT C.Name, A.Customer_Gender, A.Customer_Age, F.Category, A.Profit
