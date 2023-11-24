@@ -65,7 +65,7 @@ ALTER TABLE `maitrang-2310.CCHH.Sub_Categories`
 ADD PRIMARY KEY (Sub_CategoryCode) NOT ENFORCED;
 
 
--- Xác định foreign key: Cái nối với primary key qua table khác
+-- Xác định foreign key: 
 ALTER TABLE `maitrang-2310.CCHH.Data`
 ADD FOREIGN KEY (State) REFERENCES `maitrang-2310.CCHH.States` (StateName) NOT ENFORCED;
 
